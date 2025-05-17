@@ -1,0 +1,10 @@
+.gradle
+.idea
+gradle
+gradlew
+gradlew.bat
+build
+local.properties
+out
+zygisk_libraries/.cxx
+zip/*.zip
