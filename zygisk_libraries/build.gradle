@@ -3,20 +3,28 @@ plugins {
 }
 
 android {
+    namespace 'com.pkm.pubg.fpsunlocker'
     compileSdk 36
+
     defaultConfig {
-        minSdk 21
+        minSdk 26
         targetSdk 36
+        versionCode 1
+        versionName "1.0"
+
         externalNativeBuild {
             cmake {
-                arguments "-DMODULE_NAME:STRING=PUBG_FPS_UNLOCKER"
+                cppFlags '-std=c++17'
                 abiFilters "arm64-v8a", "armeabi-v7a"
             }
         }
     }
+
     buildTypes {
         release {
+            minifyEnabled false
             debuggable false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             debuggable true
@@ -31,6 +39,56 @@ android {
         }
     }
     namespace "libraries.namespace"
+}
+
+tasks.register("copyZygiskSo", Copy) {
+    def rootOut = "$rootDir/out"
+    def rootZip = "$rootDir/zip/zygisk"
+
+    def filesToCopy = [
+            file("$rootOut/arm64-v8a/arm64-v8a.so"),
+            //file("$rootOut/armeabi-v7a/armeabi-v7a.so"),
+            //file("$rootOut/x86/x86.so"),
+            //file("$rootOut/x86_64/x86_64.so"),
+    ]
+
+    doFirst {
+        def zipDir = file(rootZip)
+        if (!zipDir.exists()) {
+            println "Creating missing directory: $zipDir"
+            zipDir.mkdirs()
+        }
+
+        filesToCopy.each { srcFile ->
+            if (!srcFile.exists()) {
+                throw new GradleException("Missing .so file: $srcFile")
+            } else {
+                println "Will copy: $srcFile → $rootZip/"
+            }
+        }
+    }
+
+    from(filesToCopy)
+    into(rootZip)
+}
+
+tasks.named("clean").configure {
+    description = "Clean the Zygisk native libraries"
+    doLast {
+        // Delete the 'out' directory in the root folder
+        def outDir = file("$rootDir/out")
+        if (outDir.exists()) {
+            println "Deleting $outDir"
+            outDir.deleteDir()
+        }
+
+        // Delete all .so files under zip/zygisk/
+        def soFiles = fileTree(dir: "$rootDir/zip/zygisk", include: "*.so")
+        soFiles.each { file ->
+            println "Deleting: $file"
+            file.delete()
+        }
+    }
 }
 
 

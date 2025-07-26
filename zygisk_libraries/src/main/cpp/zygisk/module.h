@@ -1,12 +1,8 @@
 #include "cerrno"
 #include "android/log.h"
 
-#pragma once
-
-namespace unlockfpstag {
-
 #ifndef TAG
-#define TAG    "PubgFpsUnlocker"
+#define TAG    "Fps_Unlocker"
 #endif
 
 #ifdef NDEBUG
@@ -18,4 +14,3 @@ namespace unlockfpstag {
 #define LOGI(...)     __android_log_print(ANDROID_LOG_INFO,  TAG, __VA_ARGS__)
 #define LOGW(...) 	  __android_log_print(ANDROID_LOG_WARN,  TAG, __VA_ARGS__)
 #define LOGERRNO(fmt, ...) __android_log_print(ANDROID_LOG_ERROR, TAG, fmt ": %d (%s)", ##__VA_ARGS__, errno, strerror(errno))
-}
